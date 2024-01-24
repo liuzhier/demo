@@ -1,14 +1,136 @@
-#include <windows.h>
+ï»¿#include <windows.h>
 #include <stdio.h>
 
 #include "pallib.h"
+#include <direct.h>
+
+//
+// æ•Œæ–¹æˆ˜æ–—å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfABC					"ABC\\"
+
+//
+// é“å…·å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfBALL				"BALL\\"
+
+//
+// æˆ‘æ–¹æˆ˜æ–—å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfFIGHT				"FIGHT\\"
+
+//
+// å·åŠ¨/èƒŒæ™¯å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfFBP					"FBP\\"
+
+//
+// ä»™æœ¯ç‰¹æ•ˆå›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfFIRE				"FIRE\\"
+
+//
+// åœ°å›¾å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfMAP					"MAP\\"
+
+//
+// åœ°å›¾è§’è‰²ç§»åŠ¨/åŠ¨ä½œå›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfMGO					"MGO\\"
+
+//
+// äº‹ä»¶å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfEVENT				"EVENT\\"
+
+//
+// è§’è‰²è‚–åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfRGM					"RGM\\"
+
+//
+// è¿‡åœºåŠ¨æ¼«é™æ€å›¾åƒå¯¼å‡ºç›®å½•
+//
+#define outPathOfRNG					"RNG\\"
+
+//
+// æ•Œæ–¹æˆ˜æ–—å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfABC			200
+
+//
+// é“å…·å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfBALL			160
+
+//
+// æˆ‘æ–¹æˆ˜æ–—å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfFIGHT			200
+
+//
+// å·åŠ¨/èƒŒæ™¯å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfFBP			200
+
+//
+// ä»™æœ¯ç‰¹æ•ˆå›¾åƒèƒŒæ™¯è‰²ç´¢å¼•ï¼ˆé»˜è®¤è‡ªåŠ¨ï¼Œæš‚ä¸æä¾›ï¼‰
+//
+#define bgColorIndexOfFIRE			0
+
+//
+// åœ°å›¾å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•ï¼ˆé»˜è®¤è‡ªåŠ¨ï¼Œæš‚ä¸æä¾›ï¼‰
+//
+#define bgColorIndexOfMAP			0
+
+//
+//  åœ°å›¾è§’è‰²ç§»åŠ¨/åŠ¨ä½œå›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfMGO			200
+
+//
+// äº‹ä»¶å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfEVENT			200
+
+//
+// è§’è‰²è‚–åƒèƒŒæ™¯è‰²ç´¢å¼•
+//
+#define bgColorIndexOfRGM			160
+
+//
+// è¿‡åœºåŠ¨æ¼«é™æ€å›¾åƒèƒŒæ™¯è‰²ç´¢å¼•ï¼ˆé»˜è®¤è‡ªåŠ¨ï¼Œæš‚ä¸æä¾›ï¼‰
+//
+#define bgColorIndexOfRNG			0
+
+CHAR szInputPath[0xFF];
+CHAR szOutputPath[0xFF];
+CHAR szOutputPathBuk[0xFF];
+
+CHAR szOutputFile[0xFF];
+CHAR szOutputFileBuk[0xFF];
+
+// èµ„æºæ–‡ä»¶è·¯å¾„
+CHAR szAbcJ[0xFF];
+CHAR szBallNew[0xFF];
+CHAR szFbpPx[0xFF];
+CHAR szFffJ[0xFF];
+CHAR szFirenAv[0xFF];
+CHAR szMgoJ[0xFF];
+CHAR szMgoNew[0xFF];
+CHAR szMgopJoe[0xFF];
+CHAR szRgmJoe[0xFF];
+CHAR szRngAv[0xFF];
+CHAR szRngPal[0xFF];
+CHAR szAlldatNew[0xFF];
 
 #pragma pack(2)
 struct RGB555
 {
-	unsigned short	red:	5;
-	unsigned short	green:	5;
-	unsigned short	blue:	5;
+	unsigned short	red : 5;
+	unsigned short	green : 5;
+	unsigned short	blue : 5;
 };
 #pragma pack()
 
@@ -42,7 +164,7 @@ VOID OutputBitmap(char* filename, RGB555 palette[], LPBYTE lpBuffer, DWORD dwWid
 	lpInfoHeader->biXPelsPerMeter = lpInfoHeader->biYPelsPerMeter = 0;
 	lpInfoHeader->biClrUsed = lpInfoHeader->biClrImportant = 0;
 
-	for(int i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 	{
 		lpBmpPalette[i].rgbRed = palette[i].red << 3;
 		lpBmpPalette[i].rgbGreen = palette[i].green << 3;
@@ -51,7 +173,7 @@ VOID OutputBitmap(char* filename, RGB555 palette[], LPBYTE lpBuffer, DWORD dwWid
 	}
 
 	lpBmpContent += dwContentLength;
-	for(int i = 0; i < dwHeight; i++)
+	for (int i = 0; i < dwHeight; i++)
 	{
 		lpBmpContent -= dwWidth;
 		CopyMemory(lpBmpContent, lpBuffer, dwWidth);
@@ -64,27 +186,27 @@ VOID OutputBitmap(char* filename, RGB555 palette[], LPBYTE lpBuffer, DWORD dwWid
 }
 
 /*
-RNG.AV ½á¹¹£ºÒÔ 0x800 (2048) ×Ö½Ú£¨¼´Ò»¸ö¹âÅÌÉÈÇø´óĞ¡£©ÎªÒ»¸öÍêÕûµÄÊı¾İ¿é¡£ÆäÖĞÊı¾İ¾ùÎª Bit-Endian
-µÚ 1 ¿é£ºRNG ¸÷¶Î¶¯»­µÄÆğÊ¼Î»ÖÃË÷Òı£¬ÒÔÊı¾İ¿éÎªµ¥Î»£¬Ã¿¸öË÷Òı 2 ×Ö½Ú£¬×îºóÒ»¸öË÷ÒıÎªÎÄ¼şµÄ×Ü³¤¶È£¬Òò´Ë¹² 44 ¸öË÷Òı¡£
+RNG.AV ç»“æ„ï¼šä»¥ 0x800 (2048) å­—èŠ‚ï¼ˆå³ä¸€ä¸ªå…‰ç›˜æ‰‡åŒºå¤§å°ï¼‰ä¸ºä¸€ä¸ªå®Œæ•´çš„æ•°æ®å—ã€‚å…¶ä¸­æ•°æ®å‡ä¸º Bit-Endian
+ç¬¬ 1 å—ï¼šRNG å„æ®µåŠ¨ç”»çš„èµ·å§‹ä½ç½®ç´¢å¼•ï¼Œä»¥æ•°æ®å—ä¸ºå•ä½ï¼Œæ¯ä¸ªç´¢å¼• 2 å­—èŠ‚ï¼Œæœ€åä¸€ä¸ªç´¢å¼•ä¸ºæ–‡ä»¶çš„æ€»é•¿åº¦ï¼Œå› æ­¤å…± 44 ä¸ªç´¢å¼•ã€‚
 
-µÚ 2 ¿é£ºµÚÒ»¶Î¶¯»­µÄĞÅÏ¢¿é
-		µÚ 1 ¸ö DWORD£¬±íÊ¾¸Ã¶Î¶¯»­µÄÖ¡Êı
-		½ÓÏÂÀ´ N ¸ö DWORD£¬±íÊ¾¶¯»­Ã¿Ò»Ö¡Ïà¶ÔÓÚĞÅÏ¢¿éÊ×µØÖ·µÄÆ«ÒÆÁ¿¡£ÆäÖĞ×î¸ßµÄÒ»Î» bit ±íÊ¾¸ÃÖ¡ÊÇÈ«±àÂë(1)»¹ÊÇ²¿·Ö±àÂë(0)¡£
-		×îºó 1 ¸ö DWORD£¬±íÊ¾¸Ã¶Î¶¯»­Ö¡µÄ½áÊøÎ»ÖÃ¡£
-¡­¡­
+ç¬¬ 2 å—ï¼šç¬¬ä¸€æ®µåŠ¨ç”»çš„ä¿¡æ¯å—
+		ç¬¬ 1 ä¸ª DWORDï¼Œè¡¨ç¤ºè¯¥æ®µåŠ¨ç”»çš„å¸§æ•°
+		æ¥ä¸‹æ¥ N ä¸ª DWORDï¼Œè¡¨ç¤ºåŠ¨ç”»æ¯ä¸€å¸§ç›¸å¯¹äºä¿¡æ¯å—é¦–åœ°å€çš„åç§»é‡ã€‚å…¶ä¸­æœ€é«˜çš„ä¸€ä½ bit è¡¨ç¤ºè¯¥å¸§æ˜¯å…¨ç¼–ç (1)è¿˜æ˜¯éƒ¨åˆ†ç¼–ç (0)ã€‚
+		æœ€å 1 ä¸ª DWORDï¼Œè¡¨ç¤ºè¯¥æ®µåŠ¨ç”»å¸§çš„ç»“æŸä½ç½®ã€‚
+â€¦â€¦
 
-0x10: ÌøÖÁÏÂÒ»ĞĞ
+0x10: è·³è‡³ä¸‹ä¸€è¡Œ
 
-0x2W: Ìø¹ı 0xW + 1 ¸öÏñËØ
-0x3W 0xYZ: Ìø¹ı 0xWYZ ¸öÏñËØ
-0x4W: Ğ´Èë 0xW ¸ö 0xFF £¨ËÆºõÓ¦ÎªÍ¸Ã÷É«¸ü×¼È·£©
-0x5W 0xYZ: Ğ´Èë 0xWYZ ¸ö 0xFF £¨ËÆºõÓ¦ÎªÍ¸Ã÷É«¸ü×¼È·£©
-0x6W: Ğ´Èë½ÓÏÂÀ´µÄ 0xW ¸öÏñËØ
-0x7W 0xYZ: Ğ´Èë½ÓÏÂÀ´µÄ 0xWYZ ¸öÏñËØ
-0x8W: ÖØ¸´½ÓÏÂÀ´µÄÒ»¸öÏñËØ 0xW ´Î
-*0x9W 0xYZ: ÖØ¸´½ÓÏÂÀ´µÄÒ»¸öÏñËØ 0xWYZ ´Î
+0x2W: è·³è¿‡ 0xW + 1 ä¸ªåƒç´ 
+0x3W 0xYZ: è·³è¿‡ 0xWYZ ä¸ªåƒç´ 
+0x4W: å†™å…¥ 0xW ä¸ª 0xFF ï¼ˆä¼¼ä¹åº”ä¸ºé€æ˜è‰²æ›´å‡†ç¡®ï¼‰
+0x5W 0xYZ: å†™å…¥ 0xWYZ ä¸ª 0xFF ï¼ˆä¼¼ä¹åº”ä¸ºé€æ˜è‰²æ›´å‡†ç¡®ï¼‰
+0x6W: å†™å…¥æ¥ä¸‹æ¥çš„ 0xW ä¸ªåƒç´ 
+0x7W 0xYZ: å†™å…¥æ¥ä¸‹æ¥çš„ 0xWYZ ä¸ªåƒç´ 
+0x8W: é‡å¤æ¥ä¸‹æ¥çš„ä¸€ä¸ªåƒç´  0xW æ¬¡
+*0x9W 0xYZ: é‡å¤æ¥ä¸‹æ¥çš„ä¸€ä¸ªåƒç´  0xWYZ æ¬¡
 
-RNG.PAL ½á¹¹£º¹² 44 ¸öµ÷É«°å£¬Ã¿¸öµ÷É«°å¹² 256 Ïî£¬Ã¿Ïî 2 ×Ö½Ú£¨RGB555£©
+RNG.PAL ç»“æ„ï¼šå…± 44 ä¸ªè°ƒè‰²æ¿ï¼Œæ¯ä¸ªè°ƒè‰²æ¿å…± 256 é¡¹ï¼Œæ¯é¡¹ 2 å­—èŠ‚ï¼ˆRGB555ï¼‰
 */
 
 void decode_rng(unsigned char* buf, unsigned char* buffer)
@@ -92,7 +214,7 @@ void decode_rng(unsigned char* buf, unsigned char* buffer)
 	int x = 0, y = 0;
 	int code;
 
-	for(;;)
+	for (;;)
 	{
 		code = *buf++;
 		if (code == 0x00)
@@ -106,39 +228,39 @@ void decode_rng(unsigned char* buf, unsigned char* buffer)
 		else if (code >= 0x41 && code <= 0x4f)
 		{
 			code &= 0xf;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = 0xff;
 		}
 		else if (code >= 0x50 && code <= 0x5f)
 		{
 			code = ((code & 0xf) << 8) | *buf++;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = 0xff;
 		}
 		else if (code >= 0x61 && code <= 0x6f)
 		{
 			code &= 0xf;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = *buf++;
 		}
 		else if (code >= 0x70 && code <= 0x7f)
 		{
 			code = ((code & 0xf) << 8) | *buf++;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = *buf++;
 		}
 		else if (code >= 0x81 && code <= 0x8f)
 		{
 			unsigned char ch = *buf++;
 			code &= 0xf;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = ch;
 		}
 		else if (code >= 0x90 && code <= 0x9f)
 		{
 			code = ((code & 0xf) << 8) | *buf++;
 			unsigned char ch = *buf++;
-			for(int i = 0; i < code; i++)
+			for (int i = 0; i < code; i++)
 				buffer[x++] = ch;
 		}
 		else
@@ -148,13 +270,13 @@ void decode_rng(unsigned char* buf, unsigned char* buffer)
 			continue;
 		}
 	}
-//	printf("y = %d\t", y);
+	//	printf("y = %d\t", y);
 }
 
 void read_rng()
 {
-	FILE* fp = fopen("h:\\rng.av", "rb");
-	FILE* fp0 = fopen("h:\\rng.pal", "rb");
+	FILE* fp = fopen(szRngAv, "rb");
+	FILE* fp0 = fopen(szRngPal, "rb");
 	int seq = 0;
 	unsigned long num;
 	RGB555 palette[0x100];
@@ -164,10 +286,10 @@ void read_rng()
 	unsigned long offsets[0x200];
 	unsigned char buffer[0xfa00];
 	fread(indices, 2, 45, fp);
-	for(int i = 0; i < 45; i++)
+	for (int i = 0; i < 45; i++)
 		indoff[i] = (unsigned long)ntohs(indices[i]) * 0x800;
 
-	for(seq = 0; seq < 44; seq++)
+	for (seq = 0; seq < 44; seq++)
 	{
 		fseek(fp, indoff[seq], SEEK_SET);
 		fread(&num, 4, 1, fp);
@@ -177,13 +299,21 @@ void read_rng()
 		fseek(fp0, seq * 0x200, SEEK_SET);
 		fread(palette, 2, 0x100, fp0);
 		ppat = (unsigned short*)palette;
-		for(int i = 0; i < 256; i++)
+		for (int i = 0; i < 256; i++)
 			ppat[i] = ntohs(ppat[i]);
 
-		for(int i = 0; i < num; i++)
+		for (int i = 0; i < num; i++)
 			offsets[i] = ntohl(offsets[i]);
 
-		for(int i = 0; i < num - 1; i++)
+		sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfRNG);
+
+		// åˆ›å»ºç›®å½• ./game/PalSSOut/RNG
+		mkdir(szOutputFile);
+
+		// å¤‡ä»½è·¯å¾„
+		sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+		for (int i = 0; i < num - 1; i++)
 		{
 			if (offsets[i] >= 0x80000000)
 			{
@@ -199,31 +329,45 @@ void read_rng()
 				decode_rng(buf, buffer);
 				free(buf);
 			}
-			char buf1[30];
-			sprintf(buf1, "f:\\pal\\%02d-%03d.bmp", seq, i);
-			OutputBitmap(buf1, palette, buffer, 320, 200);
+
+			// è¿˜åŸè·¯å¾„....
+			sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+			sprintf(szOutputFile, "%s\\RNG%d", szOutputFile, seq);
+
+			// åˆ›å»ºç›®å½• ./game/PalSSOut/RNG/RNG0
+			mkdir(szOutputFile);
+
+			sprintf(szOutputFile, "%s\\RNG%d", szOutputFile, seq);
+
+			//
+			// åˆ†å¼€å‘½åï¼Œæ–¹ä¾¿ enrle
+			//
+			sprintf(szOutputFile, "%s%d.bmp", szOutputFile, i);
+
+			OutputBitmap(szOutputFile, palette, buffer, 320, 200);
 		}
 		printf("Processed RNG: %d\n", seq);
-//		getchar();
+		//		getchar();
 	}
 	fclose(fp0);
 	fclose(fp);
 }
 
 /*
-FIREN.AV£º°´ 0x800 ·Ö¿é
-µÚ 1 ¿éÎªË÷Òı£¨ÒÔ¿éÎªµ¥Î»£©
+FIREN.AVï¼šæŒ‰ 0x800 åˆ†å—
+ç¬¬ 1 å—ä¸ºç´¢å¼•ï¼ˆä»¥å—ä¸ºå•ä½ï¼‰
 
-µÚ 2 ¿é£º
-  ±¾¿éµ÷É«°å£¨0x200×Ö½Ú£¬RGB555£©
-  ¿éÄÚË÷Òı
-  ÄÚÈİ£¨¸ñÊ½Í¬RNG£©
+ç¬¬ 2 å—ï¼š
+  æœ¬å—è°ƒè‰²æ¿ï¼ˆ0x200å­—èŠ‚ï¼ŒRGB555ï¼‰
+  å—å†…ç´¢å¼•
+  å†…å®¹ï¼ˆæ ¼å¼åŒRNGï¼‰
 
 */
 
 void read_firen()
 {
-	FILE* fp = fopen("h:\\firen.av", "rb");
+	FILE* fp = fopen(szFirenAv, "rb");
 	int seq = 0;
 	unsigned long num;
 	RGB555 palette[0x100];
@@ -233,48 +377,70 @@ void read_firen()
 	unsigned long offsets[0x200];
 	unsigned char buffer[0xfa00];
 	fread(indices, 2, 112, fp);
-	for(int i = 0; i < 112; i++)
+	for (int i = 0; i < 112; i++)
 		indoff[i] = (unsigned long)ntohs(indices[i]) * 0x800;
 
-	for(seq = 0; seq < 111; seq++)
+	sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfFIRE);
+
+	// åˆ›å»ºç›®å½• ./game/PalSSOut/FIRE
+	mkdir(szOutputFile);
+
+	// å¤‡ä»½è·¯å¾„
+	sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+	for (seq = 0; seq < 111; seq++)
 	{
 		fseek(fp, indoff[seq], SEEK_SET);
 
 		fread(palette, 2, 0x100, fp);
-		for(int i = 0; i < 256; i++)
+		for (int i = 0; i < 256; i++)
 			ppat[i] = ntohs(ppat[i]);
 
 		fread(offsets, 4, 1, fp);
 		num = ((ntohl(offsets[0]) & 0x0fffffff) >> 2) - 1;
 		fread(offsets + 1, 4, num, fp);
-		for(int i = 0; i <= num; i++)
+		for (int i = 0; i <= num; i++)
 			offsets[i] = ntohl(offsets[i]);
 
-		for(int i = 0; i < num; i++)
+		for (int i = 0; i < num; i++)
 		{
-			if (offsets[i] >= 0x20000000)	{}
+			if (offsets[i] >= 0x20000000) {}
 			offsets[i] &= 0x0fffffff;
 			unsigned char* buf = (unsigned char*)malloc((offsets[i + 1] & 0x0fffffff) - offsets[i]);
 			fseek(fp, indoff[seq] + 0x200 + offsets[i], SEEK_SET);
 			fread(buf, (offsets[i + 1] & 0x0fffffff) - offsets[i], 1, fp);
 			decode_rng(buf, buffer);
 			free(buf);
-			char buf1[30];
-			sprintf(buf1, "f:\\pal\\%03d-%03d.bmp", seq, i);
-			OutputBitmap(buf1, palette, buffer, 320, 200);
+
+			// è¿˜åŸè·¯å¾„....
+			sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+			sprintf(szOutputFile, "%s\\FIRE%d", szOutputFile, seq);
+
+			// åˆ›å»ºç›®å½• ./game/PalSSOut/FIRE/FIRE0
+			mkdir(szOutputFile);
+
+			sprintf(szOutputFile, "%s\\FIRE%d", szOutputFile, seq);
+
+			//
+			// åˆ†å¼€å‘½åï¼Œæ–¹ä¾¿ enrle
+			//
+			sprintf(szOutputFile, "%s%d.bmp", szOutputFile, i);
+
+			OutputBitmap(szOutputFile, palette, buffer, 320, 200);
 		}
 		printf("Processed FIREN: %d\n", seq);
-//		getchar();
+		//		getchar();
 	}
 	fclose(fp);
 }
 
-/* ALLDAT.NEW: Ç° 0x1000 ×Ö½ÚÎª 8 ¸öµ÷É«°å£¬ÆäÖĞ 3¡¢4 Í¬£¬5¡¢6 Í¬£»
-				0ÎªÕ½Ê±±³¾°µ÷É«°å£»1ÎªÆ½Ê±ÈËÎïÄ£ĞÍµ÷É«°å£»2ÎªÕ½Ê±ÈËÎïÄ£ĞÍµ÷É«°å£»3¡¢4ÎªÈËÎïÍ·Ïñ£¨×´Ì¬±³¾°£©µ÷É«°å
-   RGM.JOE: ÈËÎïÍ·Ïñ£¬RLE ¸ñÊ½£¬Ã¿ 0x2800 ×Ö½ÚÎªÒ»·ù
-   FBP.PX: ±³¾°£¬È«Í¼£¬Ã¿ 0x10000 ×Ö½ÚÎªÒ»·ù£¬ÆäÖĞÇ° 0xFA00 ÓĞĞ§
-           0¡¢1¡¢3¡¢4¡¢5£º×´Ì¬±³¾°£¬2(Æ¬Í·)->1
-   BALL.NEW: ¸ñÊ½Í¬ BALL.MKF£¬²»Í¬Ö®´¦ÎªË÷ÒıÊÇBE£¬ÇÒ×ÓÎÄ¼ş²»ÔÙÓĞ 4 ×Ö½ÚÍ·
+/* ALLDAT.NEW: å‰ 0x1000 å­—èŠ‚ä¸º 8 ä¸ªè°ƒè‰²æ¿ï¼Œå…¶ä¸­ 3ã€4 åŒï¼Œ5ã€6 åŒï¼›
+				0ä¸ºæˆ˜æ—¶èƒŒæ™¯è°ƒè‰²æ¿ï¼›1ä¸ºå¹³æ—¶äººç‰©æ¨¡å‹è°ƒè‰²æ¿ï¼›2ä¸ºæˆ˜æ—¶äººç‰©æ¨¡å‹è°ƒè‰²æ¿ï¼›3ã€4ä¸ºäººç‰©å¤´åƒï¼ˆçŠ¶æ€èƒŒæ™¯ï¼‰è°ƒè‰²æ¿
+	RGM.JOE: äººç‰©å¤´åƒï¼ŒRLE æ ¼å¼ï¼Œæ¯ 0x2800 å­—èŠ‚ä¸ºä¸€å¹…
+	FBP.PX: èƒŒæ™¯ï¼Œå…¨å›¾ï¼Œæ¯ 0x10000 å­—èŠ‚ä¸ºä¸€å¹…ï¼Œå…¶ä¸­å‰ 0xFA00 æœ‰æ•ˆ
+			0ã€1ã€3ã€4ã€5ï¼šçŠ¶æ€èƒŒæ™¯ï¼Œ2(ç‰‡å¤´)->1
+	BALL.NEW: æ ¼å¼åŒ BALL.MKFï¼Œä¸åŒä¹‹å¤„ä¸ºç´¢å¼•æ˜¯BEï¼Œä¸”å­æ–‡ä»¶ä¸å†æœ‰ 4 å­—èŠ‚å¤´
 
 */
 
@@ -285,9 +451,9 @@ bool DecoderCallBack(int srcVal, uint8* pOutVal, void* pUserData)
 
 void read_rgm()
 {
-	FILE* fp = fopen("h:\\rgm.joe", "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
-	int seq = -1;
+	FILE* fp = fopen(szRgmJoe, "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
+	int seq = -1, ikun, jkun;
 	RGB555 palette[8][0x100];
 	unsigned short* ppat = (unsigned short*)palette;
 	unsigned char inbuf[0x2800];
@@ -296,11 +462,22 @@ void read_rgm()
 	unsigned short* ph = pw + 1;
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
-			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
+			if (j == 0)
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfRGM]);
+			else
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
 
-	while(fread(inbuf, 1, 0x2800, fp))
+	sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfRGM);
+
+	// åˆ›å»ºç›®å½• ./game/PalSSOut/RGM
+	mkdir(szOutputFile);
+
+	// å¤‡ä»½è·¯å¾„
+	sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+	while (fread(inbuf, 1, 0x2800, fp))
 	{
 		seq++;
 		if (*pw == 0 || *ph == 0)
@@ -308,12 +485,13 @@ void read_rgm()
 		*pw = ntohs(*pw); *ph = ntohs(*ph);
 		memset(buffer, 0, 0xfa00);
 		Pal::Tools::DecodeRle(inbuf, buffer, 320, 200, 0, 0, DecoderCallBack, NULL);
-		char buf1[30];
-//		for(int i = 0; i < 8; i++)
-		{
-			sprintf(buf1, "f:\\pal\\%03d.bmp", seq);
-			OutputBitmap(buf1, palette[3], buffer, 320, 200);
-		}
+
+		// è¿˜åŸè·¯å¾„....
+		sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+		sprintf(szOutputFile, "%s\\RGM%d%d.bmp", szOutputFile, 0, seq);
+
+		OutputBitmap(szOutputFile, palette[3], buffer, 320, 200);
 	}
 	fclose(fp0);
 	fclose(fp);
@@ -321,26 +499,43 @@ void read_rgm()
 
 void read_ball()
 {
-	FILE* fp = fopen("h:\\ball.new", "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
+	FILE* fp = fopen(szBallNew, "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
 	RGB555 palette[8][0x100];
 	unsigned short* ppat = (unsigned short*)palette;
 	unsigned long offsets[253];
-	unsigned char inbuf[0xfa00];
-	unsigned char buffer[0xfa00];
+
+	// HACK: å®½é«˜
+	INT iRleWidth = 48;
+	INT iRleHeight = 47;
+	INT iRleLength = iRleWidth * iRleHeight;
+	unsigned char inbuf[48 * 47];
+	unsigned char buffer[48 * 47];
+
 	unsigned short* pw = (unsigned short*)inbuf;
 	unsigned short* ph = pw + 1;
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
-			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
+			if (j == 0)
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfBALL]);
+			else
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+
+	sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfBALL);
+
+	// åˆ›å»ºç›®å½• ./game/PalSSOut/BALL
+	mkdir(szOutputFile);
+
+	// å¤‡ä»½è·¯å¾„
+	sprintf(szOutputFileBuk, "%s", szOutputFile);
 
 	fread(offsets, 4, 253, fp);
-	for(int i = 0; i < 253; i++)
+	for (int i = 0; i < 253; i++)
 		offsets[i] = ntohl(offsets[i]);
 
-	for(int i = 0; i < 252; i++)
+	for (int i = 0; i < 252; i++)
 	{
 		int len = offsets[i + 1] - offsets[i];
 		if (len == 0)
@@ -350,14 +545,17 @@ void read_ball()
 		if (*pw == 0 || *ph == 0)
 			continue;
 		*pw = ntohs(*pw); *ph = ntohs(*ph);
-		memset(buffer, 0, 0xfa00);
-		Pal::Tools::DecodeRle(inbuf, buffer, 320, 200, 0, 0, DecoderCallBack, NULL);
-		char buf1[30];
-//		for(int i = 0; i < 8; i++)
-		{
-			sprintf(buf1, "f:\\pal\\%03d.bmp", i);
-			OutputBitmap(buf1, palette[3], buffer, 320, 200);
-		}
+
+		// HACK
+		memset(buffer, 0, iRleLength);
+		Pal::Tools::DecodeRle(inbuf, buffer, iRleWidth, iRleHeight, 0, 0, DecoderCallBack, NULL);
+
+		// è¿˜åŸè·¯å¾„....
+		sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+		sprintf(szOutputFile, "%s\\%03d.bmp", szOutputFile, i);
+
+		OutputBitmap(szOutputFile, palette[3], buffer, iRleWidth, iRleHeight);
 	}
 	fclose(fp0);
 	fclose(fp);
@@ -365,42 +563,57 @@ void read_ball()
 
 void read_fbp()
 {
-	FILE* fp = fopen("h:\\fbp.px", "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
+	FILE* fp = fopen(szFbpPx, "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
 	int seq = -1;
 	RGB555 palette[8][0x100];
 	unsigned short* ppat = (unsigned short*)palette;
 	unsigned char buffer[0x10000];
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
-			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
+			if (j == 0)
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfFBP]);
+			else
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
 
-	while(fread(buffer, 0x10000, 1, fp))
+	sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfFBP);
+
+	// åˆ›å»ºç›®å½• ./game/PalSSOut/FBP
+	mkdir(szOutputFile);
+
+	// å¤‡ä»½è·¯å¾„
+	sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+	while (fread(buffer, 0x10000, 1, fp))
 	{
 		seq++;
-		char buf1[30];
-//		for(int i = 0; i < 8; i++)
-		{
-			sprintf(buf1, "f:\\pal\\%03d.bmp", seq);
-			if (seq == 0 || seq == 1 || (seq >= 3 && seq <= 5))
-				OutputBitmap(buf1, palette[3], buffer, 320, 200);
-			else if (seq == 2)
-				OutputBitmap(buf1, palette[1], buffer, 320, 200);
-			else
-				OutputBitmap(buf1, palette[0], buffer, 320, 200);
-		}
+
+		// è¿˜åŸè·¯å¾„....
+		sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+		sprintf(szOutputFile, "%s\\%03d.bmp", szOutputFile, seq);
+		if (seq == 0 || seq == 1 || (seq >= 3 && seq <= 5))
+			OutputBitmap(szOutputFile, palette[3], buffer, 320, 200);
+		else if (seq == 2)
+			OutputBitmap(szOutputFile, palette[1], buffer, 320, 200);
+		else
+			OutputBitmap(szOutputFile, palette[0], buffer, 320, 200);
 	}
+
 	fclose(fp0);
 	fclose(fp);
 }
 
 void read_j(int index)
 {
-	char* filename[] = {"h:\\abc.j", "h:\\fff.j", "h:\\mgo.j"};
+	CHAR szOutputFile[255];
+	CHAR szOutputFileBuk[255];
+
+	char* filename[] = { szAbcJ, szFffJ, szMgoJ };
 	FILE* fp = fopen(filename[index], "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
 	RGB555 palette[8][0x100];
 	int max = 0, pi = (index == 2 ? 1 : 2);
 	unsigned short* ppat = (unsigned short*)palette;
@@ -408,23 +621,54 @@ void read_j(int index)
 	unsigned long offset;
 	unsigned long offsets[0x400];
 	unsigned char* inbuf = NULL;
-	unsigned char buffer[200][320];
+	unsigned char* buffer;
+
 	unsigned short* num;
-	struct __size{
+	struct __size {
 		unsigned short w;
 		unsigned short h;
 	} *psize;
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
-			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
+			if (j == 0)
+				// æ ¹æ®ä¸åŒçš„å›¾åƒç±»åˆ«åˆ†é…é€æ˜è‰²èƒŒæ™¯å’Œè¾“å‡ºè·¯å¾„
+				switch (index)
+				{
+				case 0:
+					ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfABC]);
+
+					sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfABC);
+					break;
+
+				case 1:
+					ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfFIGHT]);
+
+					sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfFIGHT);
+					break;
+
+				case 2:
+					ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfMGO]);
+
+					sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfMGO);
+					break;
+				}
+			else
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+
+	// åˆ›å»ºç›®å½• ./game/PalSSOut/ABC    FIGHT    MGO
+	mkdir(szOutputFile);
+
+	// å¤‡ä»½è·¯å¾„
+	sprintf(szOutputFileBuk, "%s", szOutputFile);
 
 	fread(indices, 2, 0x400, fp);
-	for(int i = 0; i < 0x400 && indices[i]; i++)
+
+	for (int i = 0; i < 0x400 && indices[i]; i++)
 		offsets[i] = (unsigned long)ntohs(indices[i]) * 0x800, max = i;
 
-	for(int i = 0; i < max - 1; i++)
+	for (int i = 0; i < max; i++)
 	{
 		int len = offsets[i + 1] - offsets[i];
 		if (len == 0)
@@ -434,23 +678,36 @@ void read_j(int index)
 		psize = (struct __size*)(inbuf + 2);
 		fseek(fp, offsets[i], SEEK_SET);
 		fread(inbuf, len, 1, fp);
+
+		//
+		// å›¾åƒæ¨ªåæ ‡åç§»
+		//
 		*num = ntohs(*num); offset = 2 + 4 * *num;
-		for(int j = 0; j < *num; j++)
+		for (int j = 0; j < *num; j++)
 		{
 			psize[j].w = ntohs(psize[j].w);
 			psize[j].h = ntohs(psize[j].h);
-			memset(buffer, 0, 0xfa00);
-			for(int y = 0; y < psize[j].h; y++)
-				for(int x = 0; x < psize[j].w; x++)
-					buffer[y][x] = inbuf[offset++];
-			char buf1[30];
-//			for(int i = 0; i < 8; i++)
-			{
-				sprintf(buf1, "f:\\pal\\%03d-%02d.bmp", i, j);
-				OutputBitmap(buf1, palette[pi], (LPBYTE)buffer, 320, 200);
-			}
+
+			// ç”³è¯·ç©ºé—´å¹¶æ¸…ç†ç”»å¸ƒå†…å­˜
+			buffer = (unsigned char*)malloc(psize[j].w * psize[j].h);
+
+			memset(buffer, 0x0, sizeof(buffer));
+
+			for (int y = 0; y < psize[j].h * psize[j].w; y++)
+				buffer[y] = inbuf[offset++];
+
+			// è¿˜åŸè¾“å‡ºè·¯å¾„
+			sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+			sprintf(szOutputFile, "%s\\%03d-%02d.bmp", szOutputFile, i, j);
+
+			OutputBitmap(szOutputFile, palette[pi], (LPBYTE)buffer, psize[j].w, psize[j].h);
+
+			// é‡Šæ”¾å†…å­˜
+			free(buffer);
 		}
 	}
+
 	free(inbuf);
 	fclose(fp0);
 	fclose(fp);
@@ -458,101 +715,89 @@ void read_j(int index)
 
 void read_mgo_new()
 {
-	FILE* fp = fopen("h:\\mgo.new", "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
+	FILE* fp = fopen(szMgoNew, "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
 	RGB555 palette[8][0x100];
-	int sub_count[] = {0, 11, 6, 8, 22, 17, 7, 2, 5, 2, 2, 1, 1, 2, 2, 1, 7, 4, 1, 15, 17, 10, 12, 15, 9, 12, 8, 7, 9, 3, 2, 3, 0, 0, 9, 9, 5, 5, 3, 1, 7, 7, 3, 1, 6, 4, 1, 13, 9, 20, 12, 8, 14, 13, 3, 2, 3, 0, 9, 10, 7, 3, 1, 2, 4, 8, 3, 8, 1, 2, 4, 5, 4, 3, 1, 3, 7, 7, 0, 4, 3, 12, 10, 1, 10, 1, 7, 1, 0, 6, 1, 11, 7, 21, 0, 1, 7, 4, 0, 4, 18, 8, 8, 3, 4, 0, 10, 1, 14, 8, 11, 8, 16, 3, 3, 4, 1, 4, 5, 10, 5, 3, 0, 0, 6, 1, 5, 8, 9, 12, 12, 3, 8, 2, 4, 4, 3, 2, 6, 5, 8, 3, 3, 5, 1, 3, 1, 8, 8, 6, 3, 4, 1, 7, 8, 2, 10, 1, 3, 3, 3, 2, 2, 2, 0, 4, 5, 5, 7, 3, 1, 1, 0, 7, 8, 6, 3, 0, 2, 5, 4, 2, 10, 4, 6, 5, 2, 3, 4, 6, 0, 8, 4, 4, 3, 2, 1, 5, 8, 5, 1, 10, 11, 6, 12, 6, 0, 2, 2, 3, 5, 3, 5, 2, 3, 2, 4, 4, 8, 14, 5, 0, 0, 0, 1, 1, 3, 2, 8, 2, 5, 3, 6, 5, 1, 0, 3, 6, 0, 1, 1, 2, 1, 9, 5, 2, 2, 5, 0, 4, 8, 2, 5, 3, 2, 5, 7, 1, 7, 6, 1, 1, 2, 4, 13, 11, 6, 5, 6, 5, 8, 0, 7, 0, 4, 0, 0, 2, 0, 9, 9, 7, 0, 8, 6, 0, 4, 0, 0, 0, 5, 5, 5, 6, 7, 2, 5, 6, 5};
+	int sub_count[] = { 0, 11, 6, 8, 22, 17, 7, 2, 5, 2, 2, 1, 1, 2, 2, 1, 7, 4, 1, 15, 17, 10, 12, 15, 9, 12, 8, 7, 9, 3, 2, 3, 0, 0, 9, 9, 5, 5, 3, 1, 7, 7, 3, 1, 6, 4, 1, 13, 9, 20, 12, 8, 14, 13, 3, 2, 3, 0, 9, 10, 7, 3, 1, 2, 4, 8, 3, 8, 1, 2, 4, 5, 4, 3, 1, 3, 7, 7, 0, 4, 3, 12, 10, 1, 10, 1, 7, 1, 0, 6, 1, 11, 7, 21, 0, 1, 7, 4, 0, 4, 18, 8, 8, 3, 4, 0, 10, 1, 14, 8, 11, 8, 16, 3, 3, 4, 1, 4, 5, 10, 5, 3, 0, 0, 6, 1, 5, 8, 9, 12, 12, 3, 8, 2, 4, 4, 3, 2, 6, 5, 8, 3, 3, 5, 1, 3, 1, 8, 8, 6, 3, 4, 1, 7, 8, 2, 10, 1, 3, 3, 3, 2, 2, 2, 0, 4, 5, 5, 7, 3, 1, 1, 0, 7, 8, 6, 3, 0, 2, 5, 4, 2, 10, 4, 6, 5, 2, 3, 4, 6, 0, 8, 4, 4, 3, 2, 1, 5, 8, 5, 1, 10, 11, 6, 12, 6, 0, 2, 2, 3, 5, 3, 5, 2, 3, 2, 4, 4, 8, 14, 5, 0, 0, 0, 1, 1, 3, 2, 8, 2, 5, 3, 6, 5, 1, 0, 3, 6, 0, 1, 1, 2, 1, 9, 5, 2, 2, 5, 0, 4, 8, 2, 5, 3, 2, 5, 7, 1, 7, 6, 1, 1, 2, 4, 13, 11, 6, 5, 6, 5, 8, 0, 7, 0, 4, 0, 0, 2, 0, 9, 9, 7, 0, 8, 6, 0, 4, 0, 0, 0, 5, 5, 5, 6, 7, 2, 5, 6, 5 };
 	int max = 0;//, pi = (index == 2 ? 1 : 2);
 	unsigned short* ppat = (unsigned short*)palette;
 	unsigned short indices[0x400];
 	unsigned long offset, off;
 	unsigned long offsets[0x400];
 	unsigned char* inbuf = NULL;
-	unsigned char buffer[200][320];
+	LPSTR buffer;
 	unsigned short* num;
-	struct __size{
+	struct __size {
 		unsigned short w;
 		unsigned short h;
 	} *psize;
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
-			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
+			if (j == 0)
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + bgColorIndexOfEVENT]);
+			else
+				ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
 
 	fread(indices, 2, 0x400, fp);
-	for(int i = 0; i < 0x400 && indices[i]; i++)
+	for (int i = 0; i < 0x400 && indices[i]; i++)
 		offsets[i] = (unsigned long)ntohs(indices[i]) * 0x800, max = i;
 
-//	FILE* fp3 = fopen("f:\\pal\\mgo--.txt", "w");
-	for(int i = 0; i < max - 1; i++)
+	//	FILE* fp3 = fopen(outPathOf % "mgo--.txt", "w");
+	for (int i = 0; i < max - 1; i++)
 	{
 		int len = offsets[i + 1] - offsets[i];
 		int cnt = 0;
 		if (len == 0)
-//		{
-//			fprintf(fp3, "0, ");
+			//		{
+			//			fprintf(fp3, "0, ");
 			continue;
-//		}
+		//		}
 		inbuf = (unsigned char*)realloc(inbuf, len);
 		num = (unsigned short*)inbuf;
 		fseek(fp, offsets[i], SEEK_SET);
 		fread(inbuf, len, 1, fp); offset = 0;
-		for(int j = 0; j < sub_count[i]; j++, offset += num[offset] * 2 + 1)
+		for (int j = 0; j < sub_count[i]; j++, offset += num[offset] * 2 + 1)
 		{
 			num[offset] = ntohs(num[offset]);
 			psize = (struct __size*)(num + offset + 1);
-			for(int k = 0; k < num[offset]; k++)
+			for (int k = 0; k < num[offset]; k++)
 			{
 				psize[k].w = ntohs(psize[k].w);
 				psize[k].h = ntohs(psize[k].h);
 			}
 		}
 		offset <<= 1;
-//		for(int j = 0; num[j]; j++, offset += 2)
-//			num[j] = ntohs(num[j]);
-/*
-		char buf0[30], buf2[4096];
-		sprintf(buf0, "f:\\pal\\mgo-%03d.txt", i);
-		FILE* fp2 = fopen(buf0, "r");
-		for(cnt = 0;; cnt++)
-		{
-			fgets(buf2, 4096, fp2);
-			if (buf2[0] == '-')
-			{
-				fprintf(fp3, "%d, ", cnt);
-				break;
-			}
-		}
-		for(int j = 0; num[j] && j < offset; j += num[j] * 2 + 1, cnt++)
+
+		// åˆ›å»ºç›®å½• ./game/PalSSOut/EVENT
+		sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfEVENT);
+		mkdir(szOutputFile);
+
+		// å¤‡ä»½è·¯å¾„
+		sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+		for (int j = 0, n = 0; n < sub_count[i]; j += num[j] * 2 + 1, n++)
 		{
 			psize = (struct __size*)(num + j + 1);
-			if (psize->w == 0 || psize->h == 0)
-				break;
-			fprintf(fp2, "%02d:", cnt);
-			for(int k = 0; k < num[j]; k++)
-				fprintf(fp2, " (%02d, %02d)", psize[k].w, psize[k].h);
-			fprintf(fp2, "\n");
-		}
-		fprintf(fp2, "--%d\n", num[(offset >> 1) - 1]);
-		fclose(fp2);
-		continue;
-*/
-		for(int j = 0, n = 0; n < sub_count[i]; j += num[j] * 2 + 1, n++)
-		{
-			psize = (struct __size*)(num + j + 1);
-			for(int k = 0; k < num[j]; k++)
+			for (int k = 0; k < num[j]; k++)
 			{
-				memset(buffer, 0, 0xfa00);
-				for(int y = 0; y < psize[k].h; y++)
-					for(int x = 0; x < psize[k].w; x++)
-						buffer[y][x] = inbuf[offset++];
-				char buf1[30];
-//				for(int i = 0; i < 8; i++)
-				{
-					sprintf(buf1, "f:\\pal\\mgo\\%03d-%02d-%02d.bmp", i, n, k);
-					OutputBitmap(buf1, palette[1], (LPBYTE)buffer, 320, 200);
-				}
+				// ç”³è¯·å†…å­˜ç©ºé—´
+				buffer = (LPSTR)malloc(psize[k].w * psize[k].h);
+
+				memset(buffer, 0x0001, sizeof(buffer));
+
+				for (int y = 0; y < psize[k].w * psize[k].h; y++)
+					buffer[y] = inbuf[offset++];
+
+				// è¿˜åŸè¾“å‡ºè·¯å¾„
+				sprintf(szOutputFile, "%s", szOutputFileBuk);
+
+				sprintf(szOutputFile, "%s\\%03d-%02d-%02d.bmp", szOutputFile, i, n, k);
+
+				OutputBitmap(szOutputFile, palette[1], (LPBYTE)buffer, psize[k].w, psize[k].h);
+
+				free(buffer);
 			}
 		}
 	}
@@ -563,8 +808,8 @@ void read_mgo_new()
 
 void read_mgop()
 {
-	FILE* fp = fopen("h:\\mgop.joe", "rb");
-	FILE* fp0 = fopen("h:\\ALLDAT.NEW", "rb");
+	FILE* fp = fopen(szMgopJoe, "rb");
+	FILE* fp0 = fopen(szAlldatNew, "rb");
 	RGB555 palette[8][0x100];
 	int max = 0, cnt = 0;
 	unsigned short* ppat = (unsigned short*)palette;
@@ -585,19 +830,20 @@ void read_mgop()
 	} *gop;
 
 	fread(palette, 2, 0x800, fp0);
-	for(int i = 0; i < 0x8; i++)
-		for(int j = 0; j < 256; j++)
+	for (int i = 0; i < 0x8; i++)
+		for (int j = 0; j < 256; j++)
 			ppat[(i << 8) + j] = ntohs(ppat[(i << 8) + j]);
 
 	fread(indices, 2, 0x200, fp);
-	for(int i = 0; i < 0x200 && indices[i]; i++)
+	for (int i = 0; i < 0x200 && indices[i]; i++)
 		offsets[i] = (unsigned long)ntohs(indices[i]) * 0x800, max = i;
 	fread(counts, 2, 0x200, fp);
-	for(int i = 0; i <= max; i++)
+	for (int i = 0; i <= max; i++)
 		counts[i] = (unsigned long)ntohs(counts[i]);
 
 	buffer = (unsigned char*)malloc(2064 * 2055);
-	for(int i = 0; i < max - 1; i++)
+
+	for (int i = 0; i < max - 1; i++)
 	{
 		int len = offsets[i + 1] - offsets[i];
 		if (len == 0)
@@ -607,52 +853,28 @@ void read_mgop()
 		gop = (_gop*)(inbuf + 0x10000);
 		fseek(fp, offsets[i], SEEK_SET);
 		fread(inbuf, len, 1, fp); offset = 65536;
-		for(int index = 0; index < 128 * 128; index++)
+		for (int index = 0; index < 128 * 128; index++)
 		{
 			map[index].base = ntohs(map[index].base);
 			map[index].overlay = ntohs(map[index].overlay);
 		}
-		char buf1[30];
-/*
-		memset(buffer, 0, 2064 * 2055);
-		for(int y = 0; y < 128; y++)
-			for(int x = 0, index = y << 7; x < 128; x++, index++)
-			{
-				unsigned short ibase = (map[index].base & 0x1ff);
-				int basey = (y << 4) + (x & 0x1 ? 8 : 0);
-				for(int dy = basey, sy = 0; sy < 15; dy++, sy++)
-					for(int dx = x << 4, sx = 0; sx < 32; dx++, sx++)
-						if (gop[ibase].pixel[sy][sx])
-							buffer[dy * 2064 + dx] = gop[ibase].pixel[sy][sx];
-			}
-		sprintf(buf1, "f:\\pal\\%03d-base.bmp", i);
-		OutputBitmap(buf1, palette[0], (LPBYTE)buffer, 2064, 2055);
+
+		sprintf(szOutputFile, "%s%s", szOutputPath, outPathOfMAP);
+		sprintf(szOutputFileBuk, "%s", szOutputFile);
+
+		// åˆ›å»ºç›®å½•    .\game\PalSSOut\MAP\ 
+		mkdir(szOutputFile);
 
 		memset(buffer, 0, 2064 * 2055);
-		for(int y = 0; y < 128; y++)
-			for(int x = 0, index = y << 7; x < 128; x++, index++)
-			{
-				unsigned short ioverlay = (map[index].overlay & 0x1ff);
-				int basey = (y << 4) + (x & 0x1 ? 8 : 0);
-				if (ioverlay == 0)
-					continue;
-				for(int dy = basey, sy = 0; sy < 15; dy++, sy++)
-					for(int dx = x << 4, sx = 0; sx < 32; dx++, sx++)
-						if (gop[ioverlay - 1].pixel[sy][sx])
-							buffer[dy * 2064 + dx] = gop[ioverlay - 1].pixel[sy][sx];
-			}
-		sprintf(buf1, "f:\\pal\\%03d-overlay.bmp", i);
-		OutputBitmap(buf1, palette[0], (LPBYTE)buffer, 2064, 2055);
-*/
-		memset(buffer, 0, 2064 * 2055);
-		for(int y = 0; y < 128; y++)
-			for(int x = 0, index = y << 7; x < 128; x++, index++)
+
+		for (int y = 0; y < 128; y++)
+			for (int x = 0, index = y << 7; x < 128; x++, index++)
 			{
 				unsigned short ibase = (map[index].base & 0x1ff);
 				unsigned short ioverlay = (map[index].overlay & 0x1ff);
 				int basey = (y << 4) + (x & 0x1 ? 8 : 0);
-				for(int dy = basey, sy = 0; sy < 15; dy++, sy++)
-					for(int dx = x << 4, sx = 0; sx < 32; dx++, sx++)
+				for (int dy = basey, sy = 0; sy < 15; dy++, sy++)
+					for (int dx = x << 4, sx = 0; sx < 32; dx++, sx++)
 					{
 						if (gop[ibase].pixel[sy][sx])
 							buffer[dy * 2064 + dx] = gop[ibase].pixel[sy][sx];
@@ -660,52 +882,13 @@ void read_mgop()
 							buffer[dy * 2064 + dx] = gop[ioverlay - 1].pixel[sy][sx];
 					}
 			}
-		sprintf(buf1, "f:\\pal\\%03d-map.bmp", i);
-		OutputBitmap(buf1, palette[0], (LPBYTE)buffer, 2064, 2055);
-/*
-		sprintf(buf1, "f:\\pal\\%03d-overlay.bmp", i);
-		FILE* fp2 = fopen(buf1, "wb");
-		sprintf(buf1, "f:\\pal\\%03d-map.bmp", i);
-		FILE* fp3 = fopen(buf1, "wb");
-//		sprintf(buf1, "f:\\pal\\%03d.txt", i);
-//		FILE* fp1 = fopen(buf1, "w");
-//		fprintf(fp1, "     ");
-//		for(int y = 0; y < 128; y++)
-//			fprintf(fp1, "    %03d    ", y);
-//		fprintf(fp1, "\n");
-		for(int y = 0; y < 128; y++)
-		{
-//			fprintf(fp1, "%03d: ", y);
-			for(int x = 0, index = y << 7; x < 128; x++, index++)
-			{
-				map[index].base = ntohs(map[index].base);
-				map[index].overlay = ntohs(map[index].overlay);
-//				fprintf(fp1, "[%04x,%04x]", map[index].base, map[index].overlay);
-				unsigned short ibase = (map[index].base & 0xff) | ((map[index].base & 0x1000) >> 4);
-				unsigned short ioverlay = (map[index].overlay & 0xff) | ((map[index].overlay & 0x1000) >> 4);
 
-			}
-//			fprintf(fp1, "\n");
-		}
-		fclose(fp3);
-		fclose(fp2);
-		fclose(fp1);
+		// è¿˜åŸè¾“å‡ºè·¯å¾„
+		sprintf(szOutputFile, "%s", szOutputFileBuk);
 
-		buffer = (unsigned char*)realloc(buffer, 32 * 15);
-		for(int j = 0; j < counts[i]; j++)
-		{
-			memset(buffer, 0, 480);
-			for(int y = 0; y < 15; y++)
-				for(int x = 0; x < 32; x++)
-					buffer[(y << 5) + x] = gop[j].pixel[y][x];
-			char buf1[30];
-//			for(int k = 0; k < 8; k++)
-			{
-				sprintf(buf1, "f:\\pal\\%03d-%03d.bmp", i, j);
-				OutputBitmap(buf1, palette[0], (LPBYTE)buffer, 32, 15);
-			}
-		}
-*/
+		sprintf(szOutputFile, "%s\\%03d.bmp", szOutputFile, i);
+
+		OutputBitmap(szOutputFile, palette[0], (LPBYTE)buffer, 2064, 2055);
 	}
 	free(inbuf);
 	free(buffer);
@@ -716,14 +899,41 @@ void read_mgop()
 
 int main(int argc, char* argv[])
 {
-//	read_rng1();
-//	read_rng();
-//	read_firen();
-//	read_rgm();
-//	read_ball();
-//	read_fbp();
-//	read_j(1);
-//	read_mgo_new();
+	// è·å–æ¸¸æˆè·¯å¾„
+	getcwd(szInputPath, 0xFF);
+
+	sprintf(szOutputPath, "%s", szInputPath);
+
+	// è·å–å›¾åƒè¾“å‡ºç›®å½•å·¥ä½œè·¯å¾„
+	sprintf(szOutputPath, "%s\\PalSSOut\\", szOutputPath);
+
+	// å¤‡ä»½æ¸¸æˆè·¯å¾„
+	sprintf(szOutputPathBuk, "%s", szOutputPath);
+	mkdir(szOutputPath);
+
+	sprintf(szAlldatNew, "%s\\ALLDAT.NEW", szInputPath);
+	sprintf(szAbcJ, "%s\\abc.j", szInputPath);
+	sprintf(szBallNew, "%s\\ball.new", szInputPath);
+	sprintf(szFbpPx, "%s\\fbp.px", szInputPath);
+	sprintf(szFffJ, "%s\\fff.j", szInputPath);
+	sprintf(szFirenAv, "%s\\firen.av", szInputPath);
+	sprintf(szMgoJ, "%s\\mgo.j", szInputPath);
+	sprintf(szMgoNew, "%s\\mgo.new", szInputPath);
+	sprintf(szMgopJoe, "%s\\mgop.joe", szInputPath);
+	sprintf(szRgmJoe, "%s\\rgm.joe", szInputPath);
+	sprintf(szRngAv, "%s\\rng.av", szInputPath);
+	sprintf(szRngPal, "%s\\rng.pal", szInputPath);
+
+	//read_rng1();
+	read_rng();
+	read_firen();
+	read_rgm();
+	read_ball();
+	read_fbp();
+	read_j(0);
+	read_j(1);
+	read_j(2);
+	read_mgo_new();
 	read_mgop();
 	return 0;
 }
